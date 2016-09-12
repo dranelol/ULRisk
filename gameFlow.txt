@@ -1,0 +1,14 @@
+0. Players join lobby after picking options etc
+	Pick color, pick name
+
+1. SETUP
+	Depending on amount of players, each player gets X initial armies
+		2: 40
+		3: 35
+		4: 30
+		5: 25
+		6: 20
+	Everyone rolls 0-99. Whoever rolls highest goes first, turn order rotates from their left.
+	In order, each player selects a territory to own, until all territories have been chosen
+	
+	
