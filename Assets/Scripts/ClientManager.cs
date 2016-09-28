@@ -1,10 +1,72 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Collections;
 
 public class ClientManager : MonoBehaviour 
 {
+    private string key = "ulVGD2015";
+
+    private string createAccountURL = "http://donionrings.me/Games/NetworkingDemo/CreateAccount.php?";
+    private string loginURL = "http://donionrings.me/Games/NetworkingDemo/Login.php?";
+    private string getTokenInfoURL = "http://donionrings.me/Games/NetworkingDemo/GetTokenInfo.php?";
+
+    private string loginName;
+    private string loginPassword;
+
+    private int authLevel;
+
+    public UnityEvent OnLoginSuccessful;
+
+    public UnityEvent OnLoginUnsuccessful;
+
+    public UnityEvent OnAccountCreateSuccessful;
+
+    public UnityEvent OnAccountCreateUnsuccessful;
+
+    public UnityEvent OnPublicIPUnsuccessful;
+
     public string ConnectIP;
+
+    public CredentialToken Credentials;
+
+    public int AuthLevel
+    {
+        get
+        {
+            return authLevel;
+        }
+    }
+
+    private string displayName;
+
+    public string DisplayName
+    {
+        get
+        {
+            return displayName;
+        }
+    }
+
+    private string loginIP;
+
+    public string LoginIP
+    {
+        get
+        {
+            return loginIP;
+        }
+    }
+
+    private bool gettingLoginInfo;
+
+    public bool GettingLoginInfo
+    {
+        get
+        {
+            return gettingLoginInfo;
+        }
+    }
 
     private static ClientManager _instance;
 
@@ -91,7 +153,6 @@ public class ClientManager : MonoBehaviour
 
         ServerManager.Instance.InitGameSession();
 
-        Messenger.Broadcast("UserAddedToLobby", Credentials.DisplayName);
         ServerManager.Instance.AddToSession(Credentials);
 
         //BoltNetwork.Connect(UdpKit.UdpEndPoint.Parse(ip));

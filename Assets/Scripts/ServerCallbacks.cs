@@ -1,15 +1,97 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+using Bolt;
 
-public class ServerCallbacks : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+[BoltGlobalBehaviour(BoltNetworkModes.Host)]
+public class ServerCallbacks : GlobalEventListener
+{
+
+    /// <summary>
+    /// called when someone connects to server
+    /// </summary>
+    /// <param name="connection"></param>
+    public override void Connected(BoltConnection connection)
+    {
+        IProtocolToken acceptToken = connection.AcceptToken;
+        IProtocolToken connectToken = connection.ConnectToken;
+        var log = LogEvent.Create();
+        //log.Message = string.Format("{0} connected", connection.RemoteEndPoint);
+
+        // connected to server
+        CredentialToken token = (CredentialToken)connectToken;
+
+        Debug.Log("token connected: " + token.UserName);
+
+        log.message += "connected: " + token.UserName;
+        log.Send();
+
+        // tell server (us) client has connected
+        var userJoinedServer = UserJoinedLobby.Create(GlobalTargets.OnlyServer);
+
+        userJoinedServer.UserToken = token;
+
+        userJoinedServer.Send();
+
+        // grab all connections to the server, get their credentials
+        // serialize that list, and send it as an event
+        List<CredentialToken> connectedCredentials = new List<CredentialToken>();
+
+        foreach (BoltConnection conn in BoltNetwork.clients)
+        {
+            if (conn != connection)
+            {
+                connectedCredentials.Add((CredentialToken)conn.ConnectToken);
+                Debug.Log(((CredentialToken)conn.ConnectToken).DisplayName);
+
+                // tell all clients except for this one that we're joining
+                var userJoined = UserJoinedLobby.Create(conn);
+
+                userJoined.UserToken = token;
+
+                userJoined.Send();
+            }
+        }
+        // add server credentials to this list
+
+        connectedCredentials.Add(ClientManager.Instance.Credentials);
+
+        BinaryFormatter bf = new BinaryFormatter();
+        MemoryStream ms = new MemoryStream();
+
+        bf.Serialize(ms, connectedCredentials);
+
+        // send the list of connected clients to the newly-connected client
+        SendConnectedClients sendClients = SendConnectedClients.Create(connection);
+
+        sendClients.BinaryData = ms.ToArray();
+
+        sendClients.Send();
+    }
+
+    public override void Disconnected(BoltConnection connection)
+    {
+        var log = LogEvent.Create();
+        log.message = string.Format("{0} disconnected", connection.RemoteEndPoint.Address.ToString());
+        log.Send();
+
+        Debug.Log("token disconnected: " + connection.RemoteEndPoint.Address.ToString());
+
+        // get token connected with connection's ip
+
+        //CredentialToken disconnectToken = ServerManager.Instance.GetConnectedTokenByIP(connection.RemoteEndPoint.Address.ToString());
+        CredentialToken disconnectToken = (CredentialToken)connection.ConnectToken;
+
+
+        // tell all clients that a user is leaving the lobby so that they may update their GUIs and such
+
+        var userDisconnected = UserDisconnectedLobby.Create();
+
+        userDisconnected.UserToken = disconnectToken;
+        userDisconnected.Send();
+    }
+
 }
