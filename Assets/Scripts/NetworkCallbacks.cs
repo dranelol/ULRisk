@@ -84,6 +84,9 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
 
                     entropyManager.TakeControl();
                      */
+
+                    // enable the start of setup for the game
+                    GameManager.Instance.StartSetup();
                 }
 
                 ServerManager.Instance.InitUserStats();
@@ -153,7 +156,7 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
 
         foreach (CredentialToken token in connectedCredentials)
         {
-            Messenger.Broadcast("UserAddedToLobby", token.DisplayName);
+            //Messenger.Broadcast("UserAddedToLobby", token.DisplayName);
             ServerManager.Instance.AddToSession(token);
         }
     }

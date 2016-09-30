@@ -7,8 +7,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using UnityEngine.UI;
 
-
-
 public class GameManager : MonoBehaviour
 {
     private static GameManager instance;
@@ -85,12 +83,12 @@ public class GameManager : MonoBehaviour
         
     }
 
-	void Start () 
+    void Start () 
     {
 
-	}   
+    }   
 	
-	void Update () 
+    void Update () 
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
@@ -134,7 +132,7 @@ public class GameManager : MonoBehaviour
             }
 
         }
-	}
+    }
 
     void OnLevelWasLoaded(int level)
     {
@@ -240,6 +238,18 @@ public class GameManager : MonoBehaviour
         //Instantiate(GameTypeManagerPrefab);
 
         BoltNetwork.LoadScene("Game", token);
+
+        
+    }
+
+    public void StartSetup()
+    {
+        StartCoroutine(startSetup());
+    }
+
+    private IEnumerator startSetup()
+    {
+        yield return null;
     }
 
 
