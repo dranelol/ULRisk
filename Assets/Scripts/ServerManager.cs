@@ -207,10 +207,11 @@ public class ServerManager : MonoBehaviour
     public void StartServer()
     {
         //Instantiate(GameManager.Instance.ServerManagerPrefab);
-        //BoltLauncher.StartServer(UdpKit.UdpEndPoint.Parse("127.0.0.1:27000"));
+        BoltLauncher.StartServer(UdpKit.UdpEndPoint.Parse("127.0.0.1:27000"));
         //BoltLauncher.StartServer(UdpKit.UdpEndPoint.Any);
         InitGameSession();
-        BoltLauncher.StartServer(UdpKit.UdpEndPoint.Parse("127.0.0.1:27000"));
+        //UdpKit.UdpEndPoint server = new UdpKit.UdpEndPoint(UdpKit.UdpIPv4Address.Localhost, 27000);
+        //BoltLauncher.StartServer(server);
         //BoltLauncher.StartServer(27000);
         //ServerManager.Instance.InitGameSession();
         //BoltNetwork.LoadScene("Tutorial1");
@@ -219,6 +220,9 @@ public class ServerManager : MonoBehaviour
         Debug.Log("broadcasting: " + ClientManager.Instance.Credentials.DisplayName);
 
         AddToSession(ClientManager.Instance.Credentials);
+
+
+        //BoltLauncher.StartClient();
     }
 
     /// <summary>

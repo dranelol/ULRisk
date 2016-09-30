@@ -23,7 +23,11 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
         {
             //BoltNetwork.Connect(UdpKit.UdpEndPoint.Parse(ClientManager.Instance.ConnectIP));
             //BoltNetwork.Connect(UdpKit.UdpEndPoint.Parse(ClientManager.Instance.ConnectIP + ":27000"), ClientManager.Instance.Credentials);
-            BoltNetwork.Connect(UdpKit.UdpEndPoint.Parse("127.0.0.1:27000"), ClientManager.Instance.Credentials);
+            //UdpKit.UdpEndPoint client = new UdpKit.UdpEndPoint(UdpKit.UdpIPv4Address.Localhost, 27000);
+            Debug.Log("connecting...");
+            BoltNetwork.Connect(UdpKit.UdpEndPoint.Parse("127.0.0.1:27000"));
+
+            //BoltNetwork.Connect(client, ClientManager.Instance.Credentials);
 
 
         }
