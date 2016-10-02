@@ -200,7 +200,7 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
     {
         ServerManager.Instance.UpdateClientUserStats(evnt.UserName, (UserStatsToken)evnt.UserToken);
     }
-
+    
     
     #endregion
 }

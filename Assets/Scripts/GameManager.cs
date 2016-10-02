@@ -24,14 +24,13 @@ public class GameManager : MonoBehaviour
     }
 
     [Serializable]
-    public class AbilityDatabase : SerializedDictionary<string, GameObject> 
+    public class PlayerIDDatabase : SerializedDictionary<int, BoltConnection> 
     { 
 
     }
 
     [SerializeField]
-    public AbilityDatabase abilityDatabase = new AbilityDatabase();
-
+    public PlayerIDDatabase PlayerDatabase = new PlayerIDDatabase();
     
     private bool netInit = false;
 
@@ -79,7 +78,6 @@ public class GameManager : MonoBehaviour
                 Destroy(this.gameObject);
             }
         }
-
         
     }
 
