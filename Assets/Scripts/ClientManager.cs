@@ -30,6 +30,8 @@ public class ClientManager : MonoBehaviour
 
     public CredentialToken Credentials;
 
+    public Text DisplayNameText;
+
     public int AuthLevel
     {
         get
@@ -124,6 +126,11 @@ public class ClientManager : MonoBehaviour
         }
 
         ConnectIP = IPfield.text;
+        displayName = DisplayNameText.text;
+        
+        Credentials.DisplayName = displayName;
+        Credentials.UserName = displayName;
+
         BoltLauncher.StartClient();
 
         //StartMenuGUIManager.Instance.FSM.Transition("Server_Lobby");
@@ -146,7 +153,13 @@ public class ClientManager : MonoBehaviour
             //StartMenuGUIManager.Instance.GetComponent<GUIAnimationEvents>().turnInteractableOff();
             return;
         }
+
         ConnectIP = IPfield;
+        displayName = DisplayNameText.text;
+
+        Credentials.DisplayName = displayName;
+        Credentials.UserName = displayName;
+
         BoltLauncher.StartClient();
 
         //StartMenuGUIManager.Instance.FSM.Transition("Server_Lobby");

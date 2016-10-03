@@ -3,9 +3,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using UnityEngine.UI;
+
 
 public class GameManager : MonoBehaviour
 {
@@ -23,16 +25,31 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    [Serializable]
-    public class PlayerIDDatabase : SerializedDictionary<int, BoltConnection> 
-    { 
+    private bool netInit = false;
 
+    [SerializeField]
+    private List<Color> possibleColors = new List<Color>();
+
+    /// <summary>
+    /// Tracks player colors
+    /// </summary>
+    [Serializable]
+    public class PlayerColorsDatabase : SerializedDictionary<CredentialToken, SerializedColor>
+    {
+        public PlayerColorsDatabase()
+        {
+
+        }
+
+        public PlayerColorsDatabase(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+
+        }
     }
 
     [SerializeField]
-    public PlayerIDDatabase PlayerDatabase = new PlayerIDDatabase();
-    
-    private bool netInit = false;
+    public PlayerColorsDatabase PlayerColors = new PlayerColorsDatabase();
 
     [SerializeField]
     public int LoadSceneNum;
@@ -58,6 +75,8 @@ public class GameManager : MonoBehaviour
     public GameObject GameTypeManagerPrefab;
 
     private bool started = false;
+
+    private bool pickingRegion = false;
 
     public bool LOCAL_TESTING = false;
     
@@ -218,12 +237,43 @@ public class GameManager : MonoBehaviour
         toEnable.SetActive(true);
     }
 
+    
+
     /// <summary>
     /// start game session
     /// NOTE: ONLY CALLED FROM SERVER
     /// </summary>
     public void StartGame()
     {
+        // decide player colors and send to all connected clients
+        int count = 0;
+
+        foreach(CredentialToken player in ServerManager.Instance.ConnectedUsers)
+        {
+            SerializedColor playerColor = new SerializedColor(possibleColors[count]);
+
+            PlayerColors[player] = playerColor;
+
+            count++;
+        }
+
+        BinaryFormatter bf = new BinaryFormatter();
+        MemoryStream ms = new MemoryStream();
+
+        bf.Serialize(ms, PlayerColors);
+
+        SetColors setColors = SetColors.Create(Bolt.GlobalTargets.Others);
+
+        setColors.BinaryData = ms.ToArray();
+
+        setColors.Send();
+
+        // = SendConnectedClients.Create(connection);
+
+        //sendClients.BinaryData = ms.ToArray();
+
+        //sendClients.Send();
+
         SceneChangeToken token = new SceneChangeToken();
 
         token.Reason = "StartGame";
@@ -237,9 +287,14 @@ public class GameManager : MonoBehaviour
 
         BoltNetwork.LoadScene("Game", token);
 
+
+
         
     }
 
+    /// <summary>
+    /// NOTE: ONLY CALLED ON SERVER
+    /// </summary>
     public void StartSetup()
     {
         StartCoroutine(startSetup());
@@ -247,6 +302,19 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator startSetup()
     {
+        // give each player a turn to pick a region
+        foreach(CredentialToken player in ServerManager.Instance.ConnectedUsers)
+        {
+            BoltConnection nextPlayer = ServerManager.Instance.Players[player];
+
+            PickRegion evnt = PickRegion.Create(nextPlayer);
+            evnt.Send();
+            
+            pickingRegion = true;
+
+            yield return new WaitUntil(() => pickingRegion == false);
+        }
+
         yield return null;
     }
 

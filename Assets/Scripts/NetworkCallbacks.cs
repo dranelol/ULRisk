@@ -25,7 +25,7 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
             //BoltNetwork.Connect(UdpKit.UdpEndPoint.Parse(ClientManager.Instance.ConnectIP + ":27000"), ClientManager.Instance.Credentials);
             //UdpKit.UdpEndPoint client = new UdpKit.UdpEndPoint(UdpKit.UdpIPv4Address.Localhost, 27000);
             Debug.Log("connecting...");
-            BoltNetwork.Connect(UdpKit.UdpEndPoint.Parse("127.0.0.1:27000"));
+            BoltNetwork.Connect(UdpKit.UdpEndPoint.Parse(ClientManager.Instance.ConnectIP + ":27000"), ClientManager.Instance.Credentials);
 
             //BoltNetwork.Connect(client, ClientManager.Instance.Credentials);
 
@@ -120,16 +120,6 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
         logMessages.Insert(0, evnt.message);
     }
 
-    public override void OnEvent(UserJoinedLobby evnt)
-    {
-
-        Debug.Log("user joined lobby, raised from: " + ((CredentialToken)evnt.UserToken).DisplayName);
-
-        ServerManager.Instance.AddToSession((CredentialToken)evnt.UserToken);
-
-        //Debug.Log(evnt.RaisedBy.ToString());
-    }
-
     public override void OnEvent(UserDisconnectedLobby evnt)
     {
 
@@ -199,6 +189,70 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
     public override void OnEvent(UpdateUserStats evnt)
     {
         ServerManager.Instance.UpdateClientUserStats(evnt.UserName, (UserStatsToken)evnt.UserToken);
+    }
+
+    /// <summary>
+    /// Sent by: Server
+    /// Received by: Client who will now pick a region
+    /// Enables a client's "turn" to pick a region
+    /// </summary>
+    /// <param name="evnt"></param>
+    public override void OnEvent(PickRegion evnt)
+    {
+
+    }
+
+    /// <summary>
+    /// Sent by: Client who is currently picking a region
+    /// Received by: Server
+    /// Sent after client has picked their region during setup
+    /// </summary>
+    /// <param name="evnt"></param>
+    public override void OnEvent(RegionPicked evnt)
+    {
+
+    }
+
+    /// <summary>
+    /// Sent by: Server
+    /// Received by: All clients
+    /// Update client data when a region changes hands from one client to another
+    /// </summary>
+    /// <param name="evnt"></param>
+    public override void OnEvent(ChangeRegionOwner evnt)
+    {
+
+    }
+
+    /// <summary>
+    /// Sent by: Server
+    /// Received by: All clients
+    /// End the setup phase of the game, go to main phase
+    /// </summary>
+    /// <param name="evnt"></param>
+    public override void OnEvent(EndSetup evnt)
+    {
+
+    }
+
+    /// <summary>
+    /// Sent by: server
+    /// Received by: all clients
+    /// Set player colors decided by the server
+    /// </summary>
+    /// <param name="evnt"></param>
+    public override void OnEvent(SetColors evnt)
+    {
+        MemoryStream ms = new MemoryStream();
+        BinaryFormatter bf = new BinaryFormatter();
+        ms.Write(evnt.BinaryData, 0, evnt.BinaryData.Length);
+        ms.Seek(0, SeekOrigin.Begin);
+
+        Debug.Log(evnt.BinaryData.Length);
+
+        GameManager.PlayerColorsDatabase PlayerColors = (GameManager.PlayerColorsDatabase)bf.Deserialize(ms);
+
+        GameManager.Instance.PlayerColors = PlayerColors;
     }
     
     

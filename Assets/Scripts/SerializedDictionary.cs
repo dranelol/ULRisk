@@ -23,6 +23,19 @@ public class SerializedDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICo
     [NonSerialized]
     private Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
 
+    public SerializedDictionary()
+    {
+
+    }
+
+    protected SerializedDictionary(SerializationInfo info, StreamingContext context)
+    {
+        //dictionary = new Dictionary<TKey, TValue>(info, context);
+        //dictionary = info.get
+
+        dictionary = (Dictionary<TKey, TValue>)info.GetValue("dataDict", typeof(Dictionary<TKey, TValue>));
+    }
+
     #region Implementation of ISerializationCallbackReceiver
     public void OnAfterDeserialize()
     {
@@ -69,8 +82,11 @@ public class SerializedDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICo
     #region Implementation of ISerializable
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-        dictionary.GetObjectData(info, context);
+        //dictionary.GetObjectData(info, context);
+        info.AddValue("dataDict", dictionary, typeof(Dictionary<TKey, TValue>));
+
     }
+
     #endregion
 
     #region Implementation of IDeserializationCallback

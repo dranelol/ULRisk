@@ -18,29 +18,34 @@ public class ServerCallbacks : GlobalEventListener
     {
         IProtocolToken acceptToken = connection.AcceptToken;
         IProtocolToken connectToken = connection.ConnectToken;
+
         var log = LogEvent.Create();
         //log.Message = string.Format("{0} connected", connection.RemoteEndPoint);
 
         // connected to server
         CredentialToken token = (CredentialToken)connectToken;
 
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != GameManager.Instance.MenuSceneName)
+        {
+            Debug.Log("client tried to connect during gameplay: " + token.UserName);
+            return;
+        }
+
         Debug.Log("token connected: " + token.UserName);
 
         log.message += "connected: " + token.UserName;
         log.Send();
 
-        // tell server (us) client has connected
-        var userJoinedServer = UserJoinedLobby.Create(GlobalTargets.OnlyServer);
 
-        userJoinedServer.UserToken = token;
-
-        userJoinedServer.Send();
+        // maintain credential/connection database
+        ServerManager.Instance.Players.Add(token, connection);
+        ServerManager.Instance.AddToSession(token);
 
         // grab all connections to the server, get their credentials
         // serialize that list, and send it as an event
         List<CredentialToken> connectedCredentials = new List<CredentialToken>();
 
-        foreach (BoltConnection conn in BoltNetwork.clients)
+        foreach (BoltConnection conn in BoltNetwork.connections)
         {
             if (conn != connection)
             {
@@ -55,9 +60,6 @@ public class ServerCallbacks : GlobalEventListener
                 userJoined.Send();
             }
         }
-        // add server credentials to this list
-
-        connectedCredentials.Add(ClientManager.Instance.Credentials);
 
         BinaryFormatter bf = new BinaryFormatter();
         MemoryStream ms = new MemoryStream();
