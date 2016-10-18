@@ -5,13 +5,28 @@ using System;
 public class MapManager : MonoBehaviour
 {
     [Serializable]
-    public class MapRegionDatabase : SerializedDictionary<int, GameObject> { }
+    public class MapRegionDatabase : SerializedDictionary<int, GameObject>
+    {
+
+    }
 
     /// <summary>
-    /// record of user stats for this session
+    /// mapping of region ID to gameobject
     /// </summary>
     [SerializeField]
     public MapRegionDatabase MapRegions = new MapRegionDatabase();
+    
+    [Serializable]
+    public class MapRegionOwners : SerializedDictionary<int,CredentialToken>
+    {
+        
+    }
+
+    /// <summary>
+    /// who owns which region
+    /// </summary>
+    [SerializeField]
+    public MapRegionOwners MapOwners = new MapRegionOwners();
 
     private static MapManager instance;
     public static MapManager Instance

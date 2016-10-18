@@ -38,7 +38,8 @@ public class ServerCallbacks : GlobalEventListener
 
 
         // maintain credential/connection database
-        ServerManager.Instance.Players.Add(token, connection);
+        ServerManager.Instance.Connections.Add(token, connection);
+        ServerManager.Instance.Credentials.Add(connection, token);
         ServerManager.Instance.AddToSession(token);
 
         // grab all connections to the server, get their credentials
@@ -86,8 +87,7 @@ public class ServerCallbacks : GlobalEventListener
 
         //CredentialToken disconnectToken = ServerManager.Instance.GetConnectedTokenByIP(connection.RemoteEndPoint.Address.ToString());
         CredentialToken disconnectToken = (CredentialToken)connection.ConnectToken;
-
-
+        
         // tell all clients that a user is leaving the lobby so that they may update their GUIs and such
 
         var userDisconnected = UserDisconnectedLobby.Create();

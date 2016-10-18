@@ -14,10 +14,10 @@ public class SerializedColorInspector : PropertyDrawer
 
         SerializedColor c = new SerializedColor(EditorGUI.ColorField(position, label, new Color(r, g, b, a)));
 
-        property.FindPropertyRelative("r").floatValue = c.ThisColor.r;
-        property.FindPropertyRelative("g").floatValue = c.ThisColor.g;
-        property.FindPropertyRelative("b").floatValue = c.ThisColor.b;
-        property.FindPropertyRelative("a").floatValue = c.ThisColor.a;
+        property.FindPropertyRelative("r").floatValue = c.GetColor.r;
+        property.FindPropertyRelative("g").floatValue = c.GetColor.g;
+        property.FindPropertyRelative("b").floatValue = c.GetColor.b;
+        property.FindPropertyRelative("a").floatValue = c.GetColor.a;
     }
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

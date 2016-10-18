@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System;
 
 [BoltGlobalBehaviour]
 public class NetworkCallbacks : Bolt.GlobalEventListener
@@ -199,7 +200,10 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
     /// <param name="evnt"></param>
     public override void OnEvent(PickRegion evnt)
     {
+        Debug.Log("its my turn!");
 
+        // enable interactions
+        GameManager.Instance.FSM.PickRegion();
     }
 
     /// <summary>
@@ -210,7 +214,37 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
     /// <param name="evnt"></param>
     public override void OnEvent(RegionPicked evnt)
     {
+        int regionID = evnt.RegionID;
+        
+        // find new owner of region ID
+        CredentialToken newOwner = (CredentialToken)evnt.NewOwner;
 
+        Debug.Log("new owner info: " + newOwner.DisplayName);
+
+        // send regionchange event to all clients
+
+        foreach(BoltConnection connection in BoltNetwork.clients)
+        {
+            ChangeRegionOwner cro = ChangeRegionOwner.Create(connection);
+
+            cro.RegionID = regionID;
+            cro.NewOwner = newOwner;
+
+            cro.Send();
+            
+        }
+
+        // update owner
+
+        MapManager.Instance.MapOwners[regionID] = newOwner;
+
+        // change color
+
+        Color newColor = GameManager.Instance.PlayerColors[newOwner].GetColor;
+
+        GameObject mapRegion = MapManager.Instance.MapRegions[regionID];
+
+        mapRegion.GetComponent<MeshRenderer>().material.color = newColor;
     }
 
     /// <summary>
@@ -221,7 +255,28 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
     /// <param name="evnt"></param>
     public override void OnEvent(ChangeRegionOwner evnt)
     {
+        int regionID = evnt.RegionID;
 
+        CredentialToken newOwner = (CredentialToken)evnt.NewOwner;
+
+        // update owner
+
+        MapManager.Instance.MapOwners[regionID] = newOwner;
+
+        // change color
+
+        foreach (SerializedColor color in GameManager.Instance.PlayerColors.Values)
+        {
+            Debug.Log(color.GetColor.ToString());
+        }
+
+        Color newColor = GameManager.Instance.PlayerColors[newOwner].GetColor;
+
+        
+
+        GameObject mapRegion = MapManager.Instance.MapRegions[regionID];
+
+        mapRegion.GetComponent<MeshRenderer>().material.color = newColor;
     }
 
     /// <summary>

@@ -26,6 +26,10 @@ public class GameManager : MonoBehaviour
     }
 
     private bool netInit = false;
+    
+    public GameFSM FSM;
+
+    public int PlayerID;
 
     [SerializeField]
     private List<Color> possibleColors = new List<Color>();
@@ -153,8 +157,10 @@ public class GameManager : MonoBehaviour
 
     void OnLevelWasLoaded(int level)
     {
-
-        
+        if(level == MainGameSceneNum)
+        {
+            FSM.StartGame();
+        }
     }
 
     /*
@@ -305,7 +311,7 @@ public class GameManager : MonoBehaviour
         // give each player a turn to pick a region
         foreach(CredentialToken player in ServerManager.Instance.ConnectedUsers)
         {
-            BoltConnection nextPlayer = ServerManager.Instance.Players[player];
+            BoltConnection nextPlayer = ServerManager.Instance.Connections[player];
 
             PickRegion evnt = PickRegion.Create(nextPlayer);
             evnt.Send();

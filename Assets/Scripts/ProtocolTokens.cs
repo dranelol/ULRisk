@@ -71,15 +71,18 @@ public class SceneChangeToken : IProtocolToken
 public class UserStatsToken : IProtocolToken
 {
     public string DisplayName;
+    public int PlayerID;
 
     public void Write(UdpPacket packet)
     {
         packet.WriteString(DisplayName);
+        packet.WriteInt(PlayerID);
     }
 
     public void Read(UdpPacket packet)
     {
         DisplayName = packet.ReadString();
+        PlayerID = packet.ReadInt();
     }
 }
 

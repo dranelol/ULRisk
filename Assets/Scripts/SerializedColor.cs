@@ -49,7 +49,7 @@ public class SerializedColor
         }
     }
 
-    public Color ThisColor
+    public Color GetColor
     {
         get
         {

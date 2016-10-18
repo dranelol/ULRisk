@@ -27,7 +27,7 @@ public class GameFSM : StateMachine
         AddTransition(GameStates.SetupIdle, GameStates.BeginTurn);
         AddTransition(GameStates.SetupPickRegion, GameStates.BeginTurn);
 
-
+        
     }
 
     #region mono methods
@@ -42,10 +42,26 @@ public class GameFSM : StateMachine
 
     }
 
+
+
     #endregion
 
     #region public methods
 
+    public void StartGame()
+    {
+        StartMachine(GameStates.SetupIdle);
+    }
+
+    public void PickRegion()
+    {
+        transition(GameStates.SetupPickRegion);
+    }
+
+    public void DonePickRegion()
+    {
+        transition(GameStates.SetupIdle);
+    }
     #endregion
 
     #region state methods
@@ -53,6 +69,8 @@ public class GameFSM : StateMachine
     #region setup idle methods
     IEnumerator SetupIdle_EnterState()
     {
+        UIDisableInput.Disable();
+
         yield return null;
     }
     void SetupIdle_Update()
@@ -69,6 +87,8 @@ public class GameFSM : StateMachine
     #region setup pick region methods
     IEnumerator SetupPickRegion_EnterState()
     {
+        UIDisableInput.Enable(true);
+
         yield return null;
     }
     void SetupPickRegion_Update()

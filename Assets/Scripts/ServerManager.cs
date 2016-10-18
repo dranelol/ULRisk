@@ -12,6 +12,8 @@ public class UserStats
 {
     public string DisplayName;
 
+    public int PlayerID;
+
     public UserStats()
     {
 
@@ -45,13 +47,26 @@ public class ServerManager : MonoBehaviour
     /// Maps credential tokens to the connection that is attached to this token
     /// </summary>
     [Serializable]
-    public class PlayerDatabase : SerializedDictionary<CredentialToken, BoltConnection>
+    public class ConnectionDatabase : SerializedDictionary<CredentialToken, BoltConnection>
     {
 
     }
 
     [SerializeField]
-    public PlayerDatabase Players = new PlayerDatabase();
+    public ConnectionDatabase Connections = new ConnectionDatabase();
+
+    /// <summary>
+    /// Maps connection to its attached credential token
+    /// </summary>
+    [Serializable]
+    public class CredentialDatabase : SerializedDictionary<BoltConnection, CredentialToken>
+    {
+
+    }
+
+    [SerializeField]
+    public CredentialDatabase Credentials = new CredentialDatabase();
+
 
     public static ServerManager Instance
     {
@@ -252,10 +267,13 @@ public class ServerManager : MonoBehaviour
     {
         UserStats.Clear();
 
+        int connectedUsers = 0;
+
         foreach (CredentialToken user in ConnectedUsers)
         {
             UserStatsToken testToken = new UserStatsToken();
             testToken.DisplayName = user.DisplayName;
+            testToken.PlayerID = connectedUsers++;
 
             UserStats.Add(user.DisplayName, testToken);
         }
