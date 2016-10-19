@@ -14,7 +14,12 @@ public class MapRegionInteraction : MonoBehaviour
     {
         if((GameStates)GameManager.Instance.FSM.CurrentState == GameStates.SetupPickRegion)
         {
-            pickRegion();
+            // only allow picking regions that haven't been picked yet
+            if(MapManager.Instance.MapOwners.ContainsKey(regionInfo.ID) == false)
+            {
+                pickRegion();
+            }
+            
         }
     }
 

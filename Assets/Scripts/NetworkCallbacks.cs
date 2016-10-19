@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -223,16 +224,12 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
 
         // send regionchange event to all clients
 
-        foreach(BoltConnection connection in BoltNetwork.clients)
-        {
-            ChangeRegionOwner cro = ChangeRegionOwner.Create(connection);
+        ChangeRegionOwner cro = ChangeRegionOwner.Create(Bolt.GlobalTargets.AllClients);
 
-            cro.RegionID = regionID;
-            cro.NewOwner = newOwner;
+        cro.RegionID = regionID;
+        cro.NewOwner = newOwner;
 
-            cro.Send();
-            
-        }
+        cro.Send();
 
         // update owner
 
@@ -244,7 +241,9 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
 
         GameObject mapRegion = MapManager.Instance.MapRegions[regionID];
 
-        mapRegion.GetComponent<MeshRenderer>().material.color = newColor;
+        mapRegion.GetComponent<Image>().color = newColor;
+
+        GameManager.Instance.PickRegionOver();
     }
 
     /// <summary>
@@ -265,10 +264,6 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
 
         // change color
 
-        foreach (SerializedColor color in GameManager.Instance.PlayerColors.Values)
-        {
-            Debug.Log(color.GetColor.ToString());
-        }
 
         Color newColor = GameManager.Instance.PlayerColors[newOwner].GetColor;
 
@@ -276,7 +271,7 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
 
         GameObject mapRegion = MapManager.Instance.MapRegions[regionID];
 
-        mapRegion.GetComponent<MeshRenderer>().material.color = newColor;
+        mapRegion.GetComponent<Image>().color = newColor;
     }
 
     /// <summary>
@@ -287,7 +282,7 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
     /// <param name="evnt"></param>
     public override void OnEvent(EndSetup evnt)
     {
-
+        GameManager.Instance.FSM.StartMainGame();
     }
 
     /// <summary>
@@ -308,6 +303,26 @@ public class NetworkCallbacks : Bolt.GlobalEventListener
         GameManager.PlayerColorsDatabase PlayerColors = (GameManager.PlayerColorsDatabase)bf.Deserialize(ms);
 
         GameManager.Instance.PlayerColors = PlayerColors;
+    }
+
+    /// <summary>
+    /// Sent by: server
+    /// Received by: client whose turn it is
+    /// </summary>
+    /// <param name="evnt"></param>
+    public override void OnEvent(TakeTurn evnt)
+    {
+        GameGUIManager.Instance.Show("YourTurnNotify");
+    }
+
+    /// <summary>
+    /// Sent by: client who just finished taking a turn
+    /// Received by: server
+    /// </summary>
+    /// <param name="evnt"></param>
+    public override void OnEvent(DoneTakingTurn evnt)
+    {
+
     }
     
     

@@ -5,7 +5,7 @@ public enum GameStates
 {
     SetupIdle,
     SetupPickRegion,
-    BeginTurn,
+    MainIdle,
     PreReinforce,
     Action,
     Resolve,
@@ -23,9 +23,6 @@ public class GameFSM : StateMachine
 
         AddTransition(GameStates.SetupIdle, GameStates.SetupPickRegion);
         AddTransition(GameStates.SetupPickRegion, GameStates.SetupIdle);
-
-        AddTransition(GameStates.SetupIdle, GameStates.BeginTurn);
-        AddTransition(GameStates.SetupPickRegion, GameStates.BeginTurn);
 
         
     }
@@ -61,6 +58,11 @@ public class GameFSM : StateMachine
     public void DonePickRegion()
     {
         transition(GameStates.SetupIdle);
+    }
+
+    public void StartMainGame()
+    {
+        transition(GameStates.MainIdle);
     }
     #endregion
 

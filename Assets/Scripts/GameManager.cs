@@ -82,6 +82,8 @@ public class GameManager : MonoBehaviour
 
     private bool pickingRegion = false;
 
+    private bool takingTurn = false;
+
     public bool LOCAL_TESTING = false;
     
     void Awake()
@@ -160,6 +162,8 @@ public class GameManager : MonoBehaviour
         if(level == MainGameSceneNum)
         {
             FSM.StartGame();
+            GameGUIManager.Instance.Show("Continent1");
+            GameGUIManager.Instance.Show("Continent2");
         }
     }
 
@@ -308,17 +312,77 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator startSetup()
     {
-        // give each player a turn to pick a region
-        foreach(CredentialToken player in ServerManager.Instance.ConnectedUsers)
+        int playerCount = ServerManager.Instance.ConnectedUsers.Count;
+
+        // give each player a turn to pick a region until all regions are picked
+        for (int i = 0; i < MapManager.Instance.MapRegions.Keys.Count; i++ )
         {
+            CredentialToken player = ServerManager.Instance.ConnectedUsers[i % playerCount];
+
             BoltConnection nextPlayer = ServerManager.Instance.Connections[player];
 
             PickRegion evnt = PickRegion.Create(nextPlayer);
             evnt.Send();
-            
+
             pickingRegion = true;
 
             yield return new WaitUntil(() => pickingRegion == false);
+        }
+
+        EndSetup es = EndSetup.Create(Bolt.GlobalTargets.AllClients);
+
+        es.Send();
+
+        StartTurns();
+
+        yield return null;
+    }
+
+    public void PickRegionOver()
+    {
+        pickingRegion = false;
+    }
+
+    public void TakeTurnOver()
+    {
+        takingTurn = false;
+    }
+
+    /// <summary>
+    /// Starts the main game turn loop
+    /// </summary>
+    public void StartTurns()
+    {
+        StartCoroutine(startTurns());
+
+    }
+
+    private IEnumerator startTurns()
+    {
+        int playerCount = 0;
+        int players = ServerManager.Instance.ConnectedUsers.Count;
+
+        // go til end
+        while(true)
+        {
+            // assign turn
+
+            // turn order is currently in order of who connected
+            CredentialToken player = ServerManager.Instance.ConnectedUsers[playerCount % players];
+
+            BoltConnection nextPlayer = ServerManager.Instance.Connections[player];
+
+            TakeTurn tt = TakeTurn.Create(nextPlayer);
+
+            tt.Send();
+
+            takingTurn = true;
+
+            yield return new WaitUntil(() => takingTurn == false);
+
+
+            // resolve turn
+
         }
 
         yield return null;

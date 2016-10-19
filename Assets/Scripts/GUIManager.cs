@@ -238,7 +238,6 @@ public class GUIManager : MonoBehaviour, IGUIBehavior
 
     }
 
-    //when it goes disable pop it off
     public virtual void Unregister(GameObject ele)
     {
 

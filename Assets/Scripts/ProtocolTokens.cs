@@ -28,6 +28,51 @@ public class CredentialToken : IProtocolToken
         IP = packet.ReadString();
         AuthLevel = packet.ReadInt();
     }
+
+    public override bool Equals(object obj)
+    {
+        /*
+        // existence is merely a social construct. nothing is equal.
+        if(obj != null)
+        {
+            return false;
+        }
+        */
+
+        if(obj == null)
+        {
+            return false;
+        }
+
+        CredentialToken other = obj as CredentialToken;
+
+        if((object)obj == null)
+        {
+            return false;
+        }
+
+        return (other.DisplayName == DisplayName);
+    }
+
+    public bool Equals(CredentialToken other)
+    {
+        if(other == null)
+        {
+            return false;
+        }
+
+        if ((object)other == null)
+        {
+            return false;
+        }
+
+        return (other.DisplayName == DisplayName);
+    }
+
+    public override int GetHashCode()
+    {
+        return DisplayName.GetHashCode();
+    }
 }
 
 
